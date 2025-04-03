@@ -16,12 +16,25 @@ Kubernetes provides a way to manage persistent storage using **Persistent Volume
 ### **Persistent Volume (PV)**
 - A **PV is a storage resource** in the cluster that an administrator provisions.
 - It can be backed by cloud storage (EBS, NFS, etc.) or on-prem solutions.
-- The **reclaim policy** defines what happens to the PV when the PVC is deleted (Retain, Recycle, Delete).
+- The **reclaim policy** defines what happens to the PV when the PVC is deleted (**Retain, Recycle, Delete**).
 
 ### **Persistent Volume Claim (PVC)**
 - A **PVC is a request for storage** by a user or application.
 - It binds to a PV and allows pods to use the storage.
 - Users do not need to know the details of the underlying storage.
+
+### **Reclaim Policy**
+- Defined in the **Persistent Volume (PV)**.
+- Determines the fate of the PV after PVC deletion:
+  - **Retain**: Keeps the PV even if the PVC is deleted.
+  - **Delete**: Automatically deletes the PV along with the PVC.
+  - **Recycle**: Cleans the PV and makes it available for reuse (deprecated in Kubernetes 1.20+).
+
+### **Access Modes**
+Defines how a PV can be accessed:
+- **ReadWriteOnce (RWO)**: Can be mounted as read/write by a single node.
+- **ReadOnlyMany (ROX)**: Can be mounted as read-only by multiple nodes.
+- **ReadWriteMany (RWX)**: Can be mounted as read/write by multiple nodes.
 
 ---
 
@@ -166,21 +179,6 @@ spec:
 
 ---
 
-## **🔹 Step 6: Deploy PVC and Pod**
-Apply the YAML files:
-```sh
-kubectl apply -f storageclass.yaml
-kubectl apply -f pvc.yaml
-kubectl apply -f pod.yaml
-```
-Verify storage provisioning:
-```sh
-kubectl get pvc
-kubectl get pv
-```
-
----
-
 ## **✅ Interview-Ready Summary**
 | Step | Action | Required for Static? | Required for Dynamic? |
 |------|--------|----------------------|----------------------|
@@ -192,30 +190,6 @@ kubectl get pv
 | **6** | Create PVC | ✅ Yes | ✅ Yes |
 | **7** | Create Pod using PVC | ✅ Yes | ✅ Yes |
 | **8** | Verify storage | ✅ Yes | ✅ Yes |
-
----
-
-## **🔥 FAQs for Interviews**
-
-### **1. Do I need to create a PV manually in dynamic provisioning?**
-❌ **No**. In **dynamic provisioning**, Kubernetes automatically creates a PV when the PVC is created.
-
-### **2. Where should I install the EBS CSI driver?**
-✅ It should be installed in the **`kube-system` namespace**.
-
-### **3. What happens if the IAM policy is not attached?**
-❌ The **EBS CSI driver will fail to provision storage**. You will see errors related to volume creation failure.
-
-### **4. Where do we define the Reclaim Policy?**
-✅ **Reclaim Policy is defined in the PV**, not in the PVC.
-```sh
-kubectl get pv -o wide  # Check reclaim policy of PVs
-```
-
-### **5. How do I check which StorageClasses are available?**
-```sh
-kubectl get storageclass
-```
 
 ---
 
